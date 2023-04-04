@@ -57,16 +57,16 @@ def get_my_table():
     countryparamparamdecoded_param= urllib.parse.unquote(countryparam)
 
     if(countryparamparamdecoded_param):
-        querysql=f" COUNTRY IN ({countryparamparamdecoded_param})"
+        querysql+= f" COUNTRY IN ({countryparamparamdecoded_param})"
 
     if(industryparamdecoded_param):
-        querysql=f" AND VERTICAL IN ({industryparamdecoded_param})"
+        querysql+= f" AND VERTICAL IN ({industryparamdecoded_param})"
 
     if(subindustryparamdecoded_param):
-        querysql=f" AND SUB_VERTICAL IN ({subindustryparamdecoded_param})"
+        querysql+= f" AND SUB_VERTICAL IN ({subindustryparamdecoded_param})"
 
     if(activityparamparamdecoded_param):
-        querysql=f" AND ACTIVITY_TYPE IN ({activityparamparamdecoded_param})"        
+        querysql+= f" AND ACTIVITY_TYPE IN ({activityparamparamdecoded_param})"        
 
 
 
