@@ -1,4 +1,6 @@
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token
+
 from flask_mail import Message
 from .. import mail
 
@@ -90,3 +92,48 @@ def get_my_table():
     
     # Return the list of dictionaries as a response
     return jsonify(data)
+
+
+# handle login request
+@api.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    email = data["email"]
+    password = data["password"]
+
+    # check if the user exists in the database
+    cursor = conn.cursor()
+    cursor.execute(
+        f"SELECT * FROM UDB_USERS WHERE email='{email}' AND password='{password}'"
+    )
+    user = cursor.fetchone()
+    cursor.close()
+
+    if not user:
+        return jsonify({"msg": "Invalid email or password"}), 401
+
+    # generate JWT token and send to frontend
+    access_token = create_access_token(identity=user[0])
+    return jsonify({"access_token": access_token}), 200
+
+# handle registration request
+@api.route("/register", methods=["POST"])
+def register():
+    data = request.get_json()
+    email = data["email"]
+    password = data["password"]
+
+    # check if the user already exists in the database
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM UDB_USERS WHERE email='{email}'")
+    user = cursor.fetchone()
+    if user:
+        cursor.close()
+        return jsonify({"msg": "User already exists"}), 400
+
+    # insert the new user into the database
+    cursor.execute(f"INSERT INTO UDB_USERS (email, password) VALUES ('{email}', '{password}')")
+    conn.commit()
+    cursor.close()
+
+    return jsonify({"msg": "User registered successfully"}), 200
